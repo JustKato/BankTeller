@@ -1,0 +1,16 @@
+name: BankTeller
+version: '${project.version}'
+main: com.danlegt.bankteller.BankTeller
+api-version: '1.21'
+prefix: BankTeller
+depend: [Vault]
+authors: [Daniel Legt]
+description: A simple bank teller plugin
+website: https://danlegt.com
+commands:
+  bankteller:
+    description: "The main bank teller command to execute"
+    usage: "/teller <arg>"
+    aliases: [teller]
+    permission: bankteller.admin
+    permission-message: "You do not have permission to use this command"
