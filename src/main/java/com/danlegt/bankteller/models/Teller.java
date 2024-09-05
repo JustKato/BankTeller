@@ -1,10 +1,12 @@
 package com.danlegt.bankteller.models;
 
 import com.danlegt.bankteller.BankTeller;
+import net.milkbowl.vault.economy.Economy;
+import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Item;
+import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
@@ -14,8 +16,10 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
-import java.util.ArrayList;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Random;
 
 public class Teller {
@@ -115,6 +119,65 @@ public class Teller {
 
 
         return inv;
+    }
+
+    public static void sendTellerMessage(Player p, String message) {
+        p.sendMessage("" +
+                ChatColor.DARK_GRAY   + "["          +
+                ChatColor.GREEN       + "BankTeller" +
+                ChatColor.DARK_GRAY   + "]"          +
+                ChatColor.GRAY        + ": "         +
+                ChatColor.WHITE + message
+        );
+    }
+
+    public static NamespacedKey getBankNoteNamespaceKey() {
+        return new NamespacedKey(BankTeller.me, "banknote_value");
+    }
+
+    public static void givePlayerBankNote(Player p, double amount) {
+        if ( !p.getCanPickupItems() ) {
+            sendTellerMessage(p, "Your inventory is full, I can't give you a note.");
+            return;
+        }
+
+        var eco = BankTeller.getEconomy();
+
+        if ( eco.getBalance(p) < amount ) {
+            sendTellerMessage(p, "Insufficient Balance");
+            return;
+        }
+
+        var resp = eco.withdrawPlayer(p, amount);
+        if ( resp.type.equals(EconomyResponse.ResponseType.FAILURE) ) {
+            sendTellerMessage(p, "Insufficient Balance");
+            return;
+        }
+
+        ItemStack bankNote = new ItemStack(Material.PAPER, 1);
+
+        ItemMeta meta = bankNote.getItemMeta();
+        PersistentDataContainer data = meta.getPersistentDataContainer();
+
+        bankNote.setItemMeta(meta);
+
+        meta.setDisplayName(ChatColor.DARK_GRAY + "[" + ChatColor.GREEN + amount + ChatColor.DARK_GRAY + "] " + ChatColor.WHITE + "BankNote");
+        meta.setLore(Arrays.asList(
+                ChatColor.WHITE + "Value: " + ChatColor.GREEN + amount,
+                ChatColor.WHITE + "Date:  " + ChatColor.YELLOW + new SimpleDateFormat("dd/MM/yyyy hh:mm aa").format(new Date()),
+                ChatColor.WHITE + "From:  " + ChatColor.LIGHT_PURPLE + p.getDisplayName(),
+                "\n",
+                ChatColor.GRAY + "SNEAK + RIGHT_CLICK to redeem"
+        ));
+
+        data.set(getBankNoteNamespaceKey(), PersistentDataType.DOUBLE, amount);
+        data.set(new NamespacedKey(BankTeller.me, "banknote_value_ID_ANTIDUPE_SAFETY"), PersistentDataType.LONG, new Date().getTime());
+
+        bankNote.setItemMeta(meta);
+
+        p.playSound(p, Sound.ENTITY_ITEM_PICKUP,  1f, 1f);
+        p.playSound(p, Sound.ENTITY_VILLAGER_YES, 1f, 1f);
+        p.getInventory().addItem(bankNote);
     }
 
 }
