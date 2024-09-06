@@ -21,9 +21,14 @@ public class BankNoteManager {
 
     // Load data when plugin starts
     public static void loadData() {
+        // Ensure the plugin's data folder exists
+        if (!BankTeller.me.getDataFolder().exists()) {
+            BankTeller.me.getDataFolder().mkdirs();  // Create the directory if it doesn't exist
+        }
+
         if (!bankNoteFile.exists()) {
             try {
-                bankNoteFile.createNewFile();
+                bankNoteFile.createNewFile();  // Create the file if it doesn't exist
             } catch (IOException e) {
                 e.printStackTrace();
             }

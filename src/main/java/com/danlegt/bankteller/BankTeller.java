@@ -2,6 +2,7 @@ package com.danlegt.bankteller;
 
 import com.danlegt.bankteller.command.TellerCommand;
 import com.danlegt.bankteller.events.TellerEvent;
+import com.danlegt.bankteller.util.BankNoteManager;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -19,6 +20,7 @@ public final class BankTeller extends JavaPlugin {
         setupEconomy();
         registerCommands();
         registerEvents();
+        BankNoteManager.loadData();
     }
 
     public static Economy getEconomy() {
