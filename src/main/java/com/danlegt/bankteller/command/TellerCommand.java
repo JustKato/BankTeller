@@ -32,6 +32,8 @@ public class TellerCommand implements CommandExecutor, TabExecutor {
             showHelp(player);
         } else if (args[0].equalsIgnoreCase("spawn")) {
             spawnTeller(player);
+        } else if (args[0].equalsIgnoreCase("inspect")) {
+            inspectTellerNote(player);
         } else if (args[0].equalsIgnoreCase("remove")) {
             removeTeller(player);
         } else {
@@ -44,9 +46,16 @@ public class TellerCommand implements CommandExecutor, TabExecutor {
     // Show help for /teller help
     private void showHelp(Player player) {
         player.sendMessage(ChatColor.GOLD + "BankTeller Plugin Help:");
-        player.sendMessage(ChatColor.GREEN + "/teller spawn"  + ChatColor.WHITE + " - Spawns a new bank teller.");
-        player.sendMessage(ChatColor.GREEN + "/teller remove" + ChatColor.WHITE + " - Removes the bank teller you're looking at or within 2 blocks.");
-        player.sendMessage(ChatColor.GREEN + "/teller help"   + ChatColor.WHITE + " - Shows this help message.");
+        player.sendMessage(ChatColor.GREEN + "/teller spawn   "  + ChatColor.WHITE + " - Spawns a new bank teller.");
+        player.sendMessage(ChatColor.GREEN + "/teller remove  "  + ChatColor.WHITE + " - Removes the bank teller you're looking at or within 2 blocks.");
+        player.sendMessage(ChatColor.GREEN + "/teller inspect "  + ChatColor.WHITE + " - Inspect the BankNote from your hand to check for duplicates and extra information.");
+        player.sendMessage(ChatColor.GREEN + "/teller help    "  + ChatColor.WHITE + " - Shows this help message.");
+    }
+
+    // Show help for /teller help
+    private void inspectTellerNote(Player player) {
+        // TODO: Look at the player's main hand and check if it's a banknote, if it is, display inforamtion about it including
+        // if it's a dupe or not.
     }
 
     // Spawn a new BankTeller at the player's location
@@ -87,6 +96,10 @@ public class TellerCommand implements CommandExecutor, TabExecutor {
 
             if ("help".startsWith(args[0].toLowerCase())) {
                 completions.add("help");
+            }
+
+            if ("inspect".startsWith(args[0].toLowerCase())) {
+                completions.add("inspect");
             }
 
             if ("spawn".startsWith(args[0].toLowerCase())) {

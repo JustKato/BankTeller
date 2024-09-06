@@ -1,7 +1,6 @@
 package com.danlegt.bankteller.models;
 
 import com.danlegt.bankteller.BankTeller;
-import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
@@ -16,11 +15,11 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Random;
+import java.util.UUID;
 
 public class Teller {
 
@@ -67,7 +66,7 @@ public class Teller {
     public static Inventory getTellerInventory(Villager teller) {
         Inventory inv = Bukkit.createInventory(teller, InventoryType.CHEST, ChatColor.GREEN + "BankTeller");
 
-        // Block out with stained glass panes for pretty inventory
+        // Block out with stained-glass panes for pretty inventory
         ItemStack blockedSlot = new ItemStack(Material.BLACK_STAINED_GLASS_PANE, 1);
         for ( int i = 0; i < inv.getSize(); i++ ) {
             inv.setItem(i, blockedSlot);
@@ -171,7 +170,7 @@ public class Teller {
         ));
 
         data.set(getBankNoteNamespaceKey(), PersistentDataType.DOUBLE, amount);
-        data.set(new NamespacedKey(BankTeller.me, "banknote_value_ID_ANTIDUPE_SAFETY"), PersistentDataType.LONG, new Date().getTime());
+        data.set(new NamespacedKey(BankTeller.me, "banknote_value_ID_ANTIDUPE_SAFETY"), PersistentDataType.STRING, UUID.randomUUID().toString());
 
         bankNote.setItemMeta(meta);
 

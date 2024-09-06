@@ -2,9 +2,11 @@ package com.danlegt.bankteller.events;
 
 import com.danlegt.bankteller.BankTeller;
 import com.danlegt.bankteller.models.Teller;
+import com.danlegt.bankteller.util.BankNoteManager;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
@@ -142,15 +144,23 @@ public class TellerEvent implements Listener {
             return;
 
         PersistentDataContainer data = meta.getPersistentDataContainer();
-
         if ( !data.has(Teller.getBankNoteNamespaceKey(), PersistentDataType.DOUBLE) ) {
             return;
         }
 
+        var noteUUID = data.get(new NamespacedKey(BankTeller.me, "banknote_value_ID_ANTIDUPE_SAFETY"), PersistentDataType.STRING);
+
         var withdrawalAmount = data.get(Teller.getBankNoteNamespaceKey(), PersistentDataType.DOUBLE);
         // Invalid Withdrawal Amount
-        if ( withdrawalAmount == null || withdrawalAmount <= 0 ) {
+        if ( withdrawalAmount == null || withdrawalAmount <= 0 || noteUUID == null ) {
             Bukkit.getLogger().log(Level.WARNING, "Player tried to withdraw invalid amount from a banknote, please investigate: " + p.getDisplayName() + " | " + p.getUniqueId());
+            return;
+        }
+
+        // Check for duplicate UUID
+        if (BankNoteManager.isUUIDRedeemed(noteUUID)) {
+            Teller.sendTellerMessage(p, ChatColor.RED + "This banknote has already been redeemed!");
+            BankNoteManager.notifyAdmins(p, noteUUID);
             return;
         }
 
@@ -161,6 +171,9 @@ public class TellerEvent implements Listener {
         BankTeller.getEconomy().depositPlayer(p, withdrawalAmount);
         Teller.sendTellerMessage(p, ChatColor.WHITE + "Amount of " + withdrawalAmount + " has been redeemed");
         p.playSound(p, Sound.ENTITY_PLAYER_LEVELUP, 1f, 2f);
+
+        // Save the UUID to prevent future redemptions
+        BankNoteManager.saveUUID(noteUUID);
     }
 
     @EventHandler
